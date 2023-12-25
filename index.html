@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<head>
+    <title>Pusher Test</title>
+</head>
+<body>
+    <h1>Pusher Test</h1>
+    <p id="text"></p>
+    <button id="send">Send</button>
+    <button id="clear">Clear</button>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        Pusher.logToConsole = true;
+        
+        var pusher = new Pusher('', {
+            cluster: 'eu'
+        });
+        
+        var channel = pusher.subscribe('openai');
+
+        var clearButton = document.getElementById("clear");
+        var sendButton = document.getElementById("send");
+
+        clearButton.addEventListener("click", function() {
+            var text = document.getElementById("text");
+            text.innerHTML = "";
+        });
+
+        sendButton.addEventListener("click", function() {
+            fetch('http://localhost:3000/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                mode: 'no-cors', 
+            });
+        });
+
+        channel.bind('new-response', function(data) {
+            var text = document.getElementById("text");
+
+            var currentText = text.innerHTML;
+            text.innerHTML = currentText + data.message;
+        });
+    </script>
+</body>
